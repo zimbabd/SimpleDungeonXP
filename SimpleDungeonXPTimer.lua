@@ -93,13 +93,12 @@ function SimpleDungeonXPTimer_SetLocked(locked)
 end
 
 function SimpleDungeonXPTimer_SetShown(shown)
-    if saved.show == shown then
-        return
-    end
-
+    local changed = saved.show ~= shown
     saved.show = shown
     UpdateVisibility()
-    print("|cff00ff00Simple Dungeon XP:|r Dungeon Timer " .. (shown and "ON" or "OFF"))
+    if changed then
+        print("|cff00ff00Simple Dungeon XP:|r Dungeon Timer " .. (shown and "ON" or "OFF"))
+    end
 end
 
 function SimpleDungeonXPTimer_Show()
