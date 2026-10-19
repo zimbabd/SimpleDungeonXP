@@ -631,6 +631,74 @@ end
 local LDB    = LibStub("LibDataBroker-1.1")
 local DBIcon = LibStub("LibDBIcon-1.0")
 
+local minimapMenu = CreateFrame("Frame", "SimpleDungeonXPMinimapMenu", UIParent)
+minimapMenu:SetWidth(140)
+minimapMenu:SetHeight(106)
+minimapMenu:SetFrameStrata("TOOLTIP")
+minimapMenu:SetClampedToScreen(true)
+minimapMenu:SetBackdrop({
+    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    tile = true,
+    tileSize = 16,
+    edgeSize = 12,
+    insets = { left = 3, right = 3, top = 3, bottom = 3 },
+})
+minimapMenu:SetBackdropColor(0.04, 0.06, 0.07, 0.96)
+minimapMenu:Hide()
+table.insert(UISpecialFrames, "SimpleDungeonXPMinimapMenu")
+
+local function CreateTimerMenuButton(text, index, action)
+    local button = CreateFrame("Button", nil, minimapMenu)
+    button:SetWidth(128)
+    button:SetHeight(22)
+    button:SetPoint("TOP", minimapMenu, "TOP", 0, -4 - ((index - 1) * 24))
+    button:EnableMouse(true)
+
+    button.highlight = button:CreateTexture(nil, "BACKGROUND")
+    button.highlight:SetAllPoints(button)
+    button.highlight:SetTexture(1, 1, 1, 0.14)
+    button.highlight:Hide()
+
+    button.label = button:CreateFontString(nil, "OVERLAY")
+    button.label:SetPoint("LEFT", button, "LEFT", 12, 0)
+    button.label:SetFont("Fonts\\FRIZQT__.TTF", 12)
+    button.label:SetText(text)
+    button.label:SetTextColor(0.92, 0.92, 0.92)
+
+    button:SetScript("OnEnter", function(self)
+        self.highlight:Show()
+        self.label:SetTextColor(1, 0.82, 0)
+    end)
+    button:SetScript("OnLeave", function(self)
+        self.highlight:Hide()
+        self.label:SetTextColor(0.92, 0.92, 0.92)
+    end)
+    button:SetScript("OnClick", function()
+        action()
+        minimapMenu:Hide()
+    end)
+    return button
+end
+
+CreateTimerMenuButton("Show", 1, SimpleDungeonXPTimer_Show)
+CreateTimerMenuButton("Hide", 2, SimpleDungeonXPTimer_Hide)
+CreateTimerMenuButton("Lock", 3, SimpleDungeonXPTimer_Lock)
+CreateTimerMenuButton("Unlock", 4, SimpleDungeonXPTimer_Unlock)
+
+local function ToggleMinimapMenu()
+    if minimapMenu:IsShown() then
+        minimapMenu:Hide()
+        return
+    end
+
+    local cursorX, cursorY = GetCursorPosition()
+    local scale = UIParent:GetEffectiveScale()
+    minimapMenu:ClearAllPoints()
+    minimapMenu:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", cursorX / scale, cursorY / scale)
+    minimapMenu:Show()
+end
+
 local minimapObject = LDB:NewDataObject(
     "SimpleDungeonXP",
     {
@@ -638,11 +706,15 @@ local minimapObject = LDB:NewDataObject(
         text  = "Simple Dungeon XP",
         icon  = "Interface\\AddOns\\SimpleDungeonXP\\simpledungeonxp",
         OnClick = function(self, button)
-            if frame:IsShown() then
-                frame:Hide()
-            else
-                UpdateWindow()
-                frame:Show()
+            if button == "RightButton" then
+                ToggleMinimapMenu()
+            elseif button == "LeftButton" then
+                if frame:IsShown() then
+                    frame:Hide()
+                else
+                    UpdateWindow()
+                    frame:Show()
+                end
             end
         end,
         OnTooltipShow = function(tooltip)

@@ -22,6 +22,17 @@ Simple Dungeon XP automatically tracks:
 - Estimated XP per hour
 - Number of hostile NPCs killed
 
+### Dungeon Timer
+
+The addon includes a separate timer window for tracking time spent in an instance.
+
+- The timer starts when entering an instance and pauses when leaving.
+- Returning to the same instance within 15 seconds resumes the timer; otherwise, it resets.
+- A small countdown bar shows the remaining time before the paused timer resets.
+- Timer position and size are saved between sessions.
+- The timer can be locked to prevent moving or resizing it. Locking also hides its background and border.
+- Timer visibility and locking can be controlled from the minimap button's right-click menu using `Show`, `Hide`, `Lock`, and `Unlock`.
+
 ---
 
 ## Screenshots
@@ -54,6 +65,7 @@ The addon includes:
 - Scrollable history table
 - Minimap button
 - Slash command support
+- Right-click minimap menu for timer visibility and lock controls
 
 Open the window using:
 

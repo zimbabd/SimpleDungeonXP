@@ -2,11 +2,19 @@ SimpleDungeonXPTimerDB = SimpleDungeonXPTimerDB or {}
 
 local timerFrame = CreateFrame("Frame", "SimpleDungeonXPTimerWindow", UIParent)
 local saved = SimpleDungeonXPTimerDB
+if saved.show == nil then
+    saved.show = true
+end
+if saved.locked == nil then
+    saved.locked = false
+end
 
 local MIN_WIDTH, MIN_HEIGHT = 150, 58
 local DEFAULT_WIDTH, DEFAULT_HEIGHT = 190, 66
+local RETURN_GRACE_PERIOD = 15
 local elapsedSinceRefresh = 0
 local active = false
+local pauseTimeRemaining = saved.pausedAt and math.max(0, RETURN_GRACE_PERIOD - (time() - saved.pausedAt)) or 0
 
 local function SaveGeometry()
     local point, _, relativePoint, x, y = timerFrame:GetPoint(1)
@@ -32,20 +40,119 @@ local function UpdateDisplay()
     end
 end
 
+local function UpdateFuse()
+    local fuseBar = timerFrame.fuseBar
+    if not fuseBar then
+        return
+    end
+
+    if saved.pausedAt and saved.show then
+        local wallClockRemaining = RETURN_GRACE_PERIOD - (time() - saved.pausedAt)
+        pauseTimeRemaining = math.max(0, math.min(pauseTimeRemaining, wallClockRemaining))
+        fuseBar:SetValue(pauseTimeRemaining)
+        if pauseTimeRemaining > 0 then
+            fuseBar:Show()
+            return
+        end
+    end
+
+    fuseBar:Hide()
+end
+
+local function UpdateVisibility()
+    if saved.show then
+        timerFrame:Show()
+    else
+        timerFrame:Hide()
+    end
+    UpdateFuse()
+end
+
+local function UpdateLockState()
+    timerFrame:SetResizable(not saved.locked)
+    if saved.locked then
+        timerFrame.resizeHandle:Hide()
+        timerFrame:SetBackdropColor(0.04, 0.06, 0.07, 0)
+        timerFrame:SetBackdropBorderColor(1, 1, 1, 0)
+    else
+        timerFrame.resizeHandle:Show()
+        timerFrame:SetBackdropColor(0.04, 0.06, 0.07, 0.92)
+        timerFrame:SetBackdropBorderColor(1, 1, 1, 1)
+    end
+    timerFrame.lockButton:SetNormalTexture(saved.locked and "Interface\\Buttons\\LockButton-Locked-Up" or "Interface\\Buttons\\LockButton-Unlocked-Up")
+end
+
+function SimpleDungeonXPTimer_SetLocked(locked)
+    if saved.locked == locked then
+        return
+    end
+
+    saved.locked = locked
+    UpdateLockState()
+    print("|cff00ff00Simple Dungeon XP:|r Dungeon Timer " .. (locked and "LOCKED" or "UNLOCKED"))
+end
+
+function SimpleDungeonXPTimer_SetShown(shown)
+    if saved.show == shown then
+        return
+    end
+
+    saved.show = shown
+    UpdateVisibility()
+    print("|cff00ff00Simple Dungeon XP:|r Dungeon Timer " .. (shown and "ON" or "OFF"))
+end
+
+function SimpleDungeonXPTimer_Show()
+    SimpleDungeonXPTimer_SetShown(true)
+end
+
+function SimpleDungeonXPTimer_Hide()
+    SimpleDungeonXPTimer_SetShown(false)
+end
+
+function SimpleDungeonXPTimer_Lock()
+    SimpleDungeonXPTimer_SetLocked(true)
+end
+
+function SimpleDungeonXPTimer_Unlock()
+    SimpleDungeonXPTimer_SetLocked(false)
+end
+
 local function SetInstanceState()
     local inInstance = IsInInstance()
+    local currentTime = time()
 
     if inInstance then
-        if not saved.startedAt then
-            saved.startedAt = time()
+        local instanceName, _, _, _, _, _, _, instanceMapID = GetInstanceInfo()
+        local instanceKey = instanceMapID or instanceName
+
+        if saved.pausedAt then
+            local pauseDuration = currentTime - saved.pausedAt
+            if pauseDuration <= RETURN_GRACE_PERIOD and saved.instanceKey == instanceKey then
+                saved.startedAt = currentTime - (saved.pausedElapsed or 0)
+            else
+                saved.startedAt = currentTime
+            end
+            saved.pausedAt = nil
+            saved.pausedElapsed = nil
+            pauseTimeRemaining = 0
+        elseif not saved.startedAt or (saved.instanceKey and saved.instanceKey ~= instanceKey) then
+            saved.startedAt = currentTime
         end
+
+        saved.instanceKey = instanceKey
         active = true
-        timerFrame:Show()
+        UpdateVisibility()
         UpdateDisplay()
     else
+        if active and saved.startedAt then
+            saved.pausedElapsed = currentTime - saved.startedAt
+            saved.pausedAt = currentTime
+            pauseTimeRemaining = RETURN_GRACE_PERIOD
+            timerFrame.timeText:SetText(FormatElapsed(saved.pausedElapsed))
+        end
         active = false
-        saved.startedAt = nil
-        timerFrame:Hide()
+        UpdateVisibility()
     end
 end
 
@@ -68,6 +175,7 @@ timerFrame:SetBackdrop({
     insets = { left = 3, right = 3, top = 3, bottom = 3 },
 })
 timerFrame:SetBackdropColor(0.04, 0.06, 0.07, 0.92)
+timerFrame:SetBackdropBorderColor(1, 1, 1, 1)
 
 timerFrame.title = timerFrame:CreateFontString(nil, "OVERLAY")
 timerFrame.title:SetPoint("TOP", timerFrame, "TOP", 0, -8)
@@ -81,6 +189,19 @@ timerFrame.timeText:SetFont("Fonts\\ARIALN.TTF", 24, "OUTLINE")
 timerFrame.timeText:SetText("00:00:00")
 timerFrame.timeText:SetTextColor(1, 1, 1)
 
+timerFrame.fuseBar = CreateFrame("StatusBar", nil, timerFrame)
+timerFrame.fuseBar:SetPoint("BOTTOMLEFT", 24, 10)
+timerFrame.fuseBar:SetPoint("BOTTOMRIGHT", -24, 10)
+timerFrame.fuseBar:SetHeight(3)
+timerFrame.fuseBar:SetMinMaxValues(0, RETURN_GRACE_PERIOD)
+timerFrame.fuseBar:SetValue(0)
+timerFrame.fuseBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
+timerFrame.fuseBar:SetStatusBarColor(1, 0.32, 0.08, 1)
+timerFrame.fuseBar.background = timerFrame.fuseBar:CreateTexture(nil, "BACKGROUND")
+timerFrame.fuseBar.background:SetAllPoints(timerFrame.fuseBar)
+timerFrame.fuseBar.background:SetTexture(0.12, 0.08, 0.06, 0.8)
+timerFrame.fuseBar:Hide()
+
 timerFrame.resizeHandle = CreateFrame("Button", nil, timerFrame)
 timerFrame.resizeHandle:SetWidth(16)
 timerFrame.resizeHandle:SetHeight(16)
@@ -89,15 +210,37 @@ timerFrame.resizeHandle:SetNormalTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGr
 timerFrame.resizeHandle:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
 timerFrame.resizeHandle:SetPushedTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Down")
 timerFrame.resizeHandle:SetScript("OnMouseDown", function()
-    timerFrame:StartSizing("BOTTOMRIGHT")
+    if not saved.locked then
+        timerFrame:StartSizing("BOTTOMRIGHT")
+    end
 end)
 timerFrame.resizeHandle:SetScript("OnMouseUp", function()
     timerFrame:StopMovingOrSizing()
     SaveGeometry()
 end)
 
+timerFrame.lockButton = CreateFrame("Button", nil, timerFrame)
+timerFrame.lockButton:SetWidth(16)
+timerFrame.lockButton:SetHeight(16)
+timerFrame.lockButton:SetPoint("BOTTOMLEFT", 3, 3)
+timerFrame.lockButton:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+timerFrame.lockButton:SetScript("OnClick", function()
+    SimpleDungeonXPTimer_SetLocked(not saved.locked)
+end)
+timerFrame.lockButton:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_TOP")
+    GameTooltip:SetText(saved.locked and "Unlock timer" or "Lock timer")
+    GameTooltip:Show()
+end)
+timerFrame.lockButton:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+end)
+timerFrame.lockButton:SetNormalTexture(saved.locked and "Interface\\Buttons\\LockButton-Locked-Up" or "Interface\\Buttons\\LockButton-Unlocked-Up")
+
 timerFrame:SetScript("OnDragStart", function(self)
-    self:StartMoving()
+    if not saved.locked then
+        self:StartMoving()
+    end
 end)
 timerFrame:SetScript("OnDragStop", function(self)
     self:StopMovingOrSizing()
@@ -117,19 +260,31 @@ timerFrame:SetScript("OnSizeChanged", function()
 end)
 
 timerFrame:SetScript("OnUpdate", function(_, elapsed)
-    if not active then
-        return
-    end
-
-    elapsedSinceRefresh = elapsedSinceRefresh + elapsed
-    if elapsedSinceRefresh >= 0.25 then
-        elapsedSinceRefresh = 0
-        UpdateDisplay()
+    if active then
+        elapsedSinceRefresh = elapsedSinceRefresh + elapsed
+        if elapsedSinceRefresh >= 0.25 then
+            elapsedSinceRefresh = 0
+            UpdateDisplay()
+        end
+    elseif saved.pausedAt then
+        pauseTimeRemaining = pauseTimeRemaining - elapsed
+        UpdateFuse()
+        if pauseTimeRemaining <= 0 or time() - saved.pausedAt >= RETURN_GRACE_PERIOD then
+            saved.startedAt = nil
+            saved.pausedAt = nil
+            saved.pausedElapsed = nil
+            saved.instanceKey = nil
+            pauseTimeRemaining = 0
+            timerFrame.timeText:SetText("00:00:00")
+            UpdateFuse()
+        end
     end
 end)
 
 timerFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 timerFrame:SetScript("OnEvent", SetInstanceState)
+
+UpdateLockState()
 
 if saved.point then
     timerFrame:SetPoint(saved.point, UIParent, saved.relativePoint or saved.point, saved.x or 0, saved.y or 0)
