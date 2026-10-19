@@ -1,25 +1,25 @@
-local addon = CreateFrame("Frame", "NovaDungeonXP")
+local addon = CreateFrame("Frame", "SimpleDungeonXP")
 
 ------------------------------------------------
 -- Saved Variables
 ------------------------------------------------
 
-NovaDungeonXPDB = NovaDungeonXPDB or {}
+SimpleDungeonXPDB = SimpleDungeonXPDB or {}
 
-if not NovaDungeonXPDB.history then
-    NovaDungeonXPDB.history = {}
+if not SimpleDungeonXPDB.history then
+    SimpleDungeonXPDB.history = {}
 end
 
-if not NovaDungeonXPDB.minimap then
-    NovaDungeonXPDB.minimap = {
+if not SimpleDungeonXPDB.minimap then
+    SimpleDungeonXPDB.minimap = {
         angle = 180,
         hide  = false
     }
 end
 
 -- Persistent active run state (survives /reload)
-if NovaDungeonXPDB.activeRun == nil then
-    NovaDungeonXPDB.activeRun = false
+if SimpleDungeonXPDB.activeRun == nil then
+    SimpleDungeonXPDB.activeRun = false
 end
 
 ------------------------------------------------
@@ -80,7 +80,7 @@ end
 
 local function SaveRun(runDate, entered, left, duration, xph)
     table.insert(
-        NovaDungeonXPDB.history,
+        SimpleDungeonXPDB.history,
         1,
         {
             dungeon  = dungeonName,
@@ -94,14 +94,14 @@ local function SaveRun(runDate, entered, left, duration, xph)
         }
     )
 
-    while #NovaDungeonXPDB.history > 100 do
-        table.remove(NovaDungeonXPDB.history)
+    while #SimpleDungeonXPDB.history > 100 do
+        table.remove(SimpleDungeonXPDB.history)
     end
 end
 
 -- Persist active run to SavedVariables so /reload does not lose progress
 local function PersistActiveRun()
-    NovaDungeonXPDB.activeRun = {
+    SimpleDungeonXPDB.activeRun = {
         running     = running,
         dungeonName = dungeonName,
         startTime   = startTime,
@@ -113,12 +113,12 @@ local function PersistActiveRun()
 end
 
 local function ClearActiveRun()
-    NovaDungeonXPDB.activeRun = false
+    SimpleDungeonXPDB.activeRun = false
 end
 
 -- Restore active run state after /reload inside a dungeon
 local function RestoreActiveRun()
-    local ar = NovaDungeonXPDB.activeRun
+    local ar = SimpleDungeonXPDB.activeRun
     if ar and ar.running then
         running      = true
         dungeonName  = ar.dungeonName or ""
@@ -127,7 +127,7 @@ local function RestoreActiveRun()
         startXPMax   = ar.startXPMax  or UnitXPMax("player")
         gainedXP     = ar.gainedXP    or 0
         mobs         = ar.mobs        or 0
-        print("|cff00ff00Nova Dungeon XP:|r Resumed " .. dungeonName)
+        print("|cff00ff00Simple Dungeon XP:|r Resumed " .. dungeonName)
     end
 end
 
@@ -172,7 +172,7 @@ local function TryStartDungeon()
 
     PersistActiveRun()
 
-    print("|cff00ff00Nova Dungeon XP:|r " .. name .. " started")
+    print("|cff00ff00Simple Dungeon XP:|r " .. name .. " started")
     return true
 end
 
@@ -211,7 +211,7 @@ local function FinishDungeon()
     SaveRun(runDate, entered, left, duration, xph)
 
     -- Chat summary
-    print("|cff00ff00Nova Dungeon XP|r")
+    print("|cff00ff00Simple Dungeon XP|r")
     print("|cff00ff00------------------------------------------------|r")
     print("Dungeon      : " .. dungeonName)
     print(string.format("Duration     : %s", FormatDuration(duration)))
@@ -328,7 +328,7 @@ addon:SetScript("OnUpdate", function(self, elapsed)
         mobs         = 0
         running      = true
         PersistActiveRun()
-        print("|cff00ff00Nova Dungeon XP:|r " .. dungeonName .. " started")
+        print("|cff00ff00Simple Dungeon XP:|r " .. dungeonName .. " started")
         return
     end
 
@@ -344,7 +344,7 @@ end)
 
 frame = CreateFrame(
 "Frame",
-"NovaDungeonXPWindow",
+"SimpleDungeonXPWindow",
 UIParent
 )
 
@@ -365,7 +365,7 @@ end)
 
 close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
 close:SetPoint("TOPRIGHT", -5, -5)
-table.insert(UISpecialFrames, "NovaDungeonXPWindow")
+table.insert(UISpecialFrames, "SimpleDungeonXPWindow")
 
 frame:SetBackdrop({
     bgFile   = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -381,17 +381,17 @@ frame:Hide()
 title = frame:CreateFontString(nil, "OVERLAY")
 title:SetPoint("TOP", 0, -15)
 title:SetFont("Fonts\\ARIALN.TTF", 20)
-title:SetText("Nova Dungeon XP")
+title:SetText("Simple Dungeon XP")
 
 ------------------------------------------------
 -- Scroll Frame & Child
 ------------------------------------------------
 
-scrollFrame = CreateFrame("ScrollFrame", "NovaDungeonXPScrollFrame", frame, "UIPanelScrollFrameTemplate")
+scrollFrame = CreateFrame("ScrollFrame", "SimpleDungeonXPScrollFrame", frame, "UIPanelScrollFrameTemplate")
 scrollFrame:SetPoint("TOPLEFT", 20, -85)
 scrollFrame:SetPoint("BOTTOMRIGHT", -32, 10)
 
-scrollChild = CreateFrame("Frame", "NovaDungeonXPScrollChild", scrollFrame)
+scrollChild = CreateFrame("Frame", "SimpleDungeonXPScrollChild", scrollFrame)
 scrollChild:SetWidth(700)
 scrollChild:SetHeight(1)
 scrollFrame:SetScrollChild(scrollChild)
@@ -475,14 +475,14 @@ local function UpdateWindow()
     end
 
     local bestXPH = 0
-    for _, v in ipairs(NovaDungeonXPDB.history) do
+    for _, v in ipairs(SimpleDungeonXPDB.history) do
         if (v.xph or 0) > bestXPH then
             bestXPH = v.xph
         end
     end
 
     local display = {}
-    for i, v in ipairs(NovaDungeonXPDB.history) do
+    for i, v in ipairs(SimpleDungeonXPDB.history) do
         display[i] = v
     end
 
@@ -528,9 +528,9 @@ local function UpdateWindow()
 end
 
 function DeleteRun(runToDelete)
-    for i, run in ipairs(NovaDungeonXPDB.history) do
+    for i, run in ipairs(SimpleDungeonXPDB.history) do
         if run == runToDelete then
-            table.remove(NovaDungeonXPDB.history, i)
+            table.remove(SimpleDungeonXPDB.history, i)
             break
         end
     end
@@ -545,12 +545,12 @@ clearBtn:SetPoint("TOPRIGHT", -10, -30)
 clearBtn:SetText("Clear History")
 
 local function ClearHistory()
-    StaticPopupDialogs["NOVADUNGEONXP_CLEAR_HISTORY"] = {
+    StaticPopupDialogs["SIMPLEDUNGEONXP_CLEAR_HISTORY"] = {
         text = "Are you sure you want to clear all dungeon history?",
         button1 = "Yes",
         button2 = "No",
         OnAccept = function()
-            NovaDungeonXPDB.history = {}
+            SimpleDungeonXPDB.history = {}
             UpdateWindow()
         end,
         timeout = 0,
@@ -558,7 +558,7 @@ local function ClearHistory()
         hideOnEscape = true,
         preferredIndex = 3,
     }
-    StaticPopup_Show("NOVADUNGEONXP_CLEAR_HISTORY")
+    StaticPopup_Show("SIMPLEDUNGEONXP_CLEAR_HISTORY")
 end
 
 clearBtn:SetScript("OnClick", ClearHistory)
@@ -608,12 +608,12 @@ headerButtons.xph  = CreateHeaderButton("XP / Hour", "xph",      520)
 -- Slash Commands
 ------------------------------------------------
 
-SLASH_NOVADXP1 = "/ndxp"
+SLASH_SIMPLEDXP1 = "/sdxp"
 
-SlashCmdList["NOVADXP"] = function(msg)
+SlashCmdList["SIMPLEDXP"] = function(msg)
     if msg == "reset" then
-        NovaDungeonXPDB.history = {}
-        print("|cff00ff00Nova Dungeon XP:|r history cleared")
+        SimpleDungeonXPDB.history = {}
+        print("|cff00ff00Simple Dungeon XP:|r history cleared")
     else
         if frame:IsShown() then
             frame:Hide()
@@ -632,11 +632,11 @@ local LDB    = LibStub("LibDataBroker-1.1")
 local DBIcon = LibStub("LibDBIcon-1.0")
 
 local minimapObject = LDB:NewDataObject(
-    "NovaDungeonXP",
+    "SimpleDungeonXP",
     {
         type  = "launcher",
-        text  = "Nova Dungeon XP",
-        icon  = "Interface\\AddOns\\NovaDungeonXP\\ndxp",
+        text  = "Simple Dungeon XP",
+        icon  = "Interface\\AddOns\\SimpleDungeonXP\\simpledungeonxp",
         OnClick = function(self, button)
             if frame:IsShown() then
                 frame:Hide()
@@ -646,20 +646,18 @@ local minimapObject = LDB:NewDataObject(
             end
         end,
         OnTooltipShow = function(tooltip)
-            tooltip:AddLine("Nova Dungeon XP")
-            tooltip:AddLine("/ndxp - open window")
+            tooltip:AddLine("Simple Dungeon XP")
+            tooltip:AddLine("/sdxp - open window")
         end
     }
 )
 
-if not NovaDungeonXPMinimapDB then
-    NovaDungeonXPMinimapDB = {
+SimpleDungeonXPMinimapDB = SimpleDungeonXPMinimapDB or {
         minimapPos = 225,
     }
-end
 
 DBIcon:Register(
-    "NovaDungeonXP",
+    "SimpleDungeonXP",
     minimapObject,
-    NovaDungeonXPMinimapDB
+    SimpleDungeonXPMinimapDB
 )

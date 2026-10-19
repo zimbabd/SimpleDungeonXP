@@ -1,0 +1,10 @@
+## Interface: 30300
+## Title: Simple Dungeon XP
+## Notes: Tracks dungeon XP, XP/hour and history
+## Author: zimbabd
+## Version: 4.2
+## SavedVariables: SimpleDungeonXPDB, SimpleDungeonXPMinimapDB, SimpleDungeonXPTimerDB
+
+embeds.xml
+SimpleDungeonXP.lua
+SimpleDungeonXPTimer.lua

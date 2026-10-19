@@ -1,11 +1,11 @@
-# Nova Dungeon XP
+# Simple Dungeon XP
 
 ![WoW Version](https://img.shields.io/badge/WoW-3.3.5-blue)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 
 ## Overview
 
-**Nova Dungeon XP** is a lightweight World of Warcraft addon for tracking dungeon leveling efficiency. It records XP gains, run duration, XP per hour, and other useful statistics for every dungeon run.
+**Simple Dungeon XP** is a lightweight World of Warcraft addon for tracking dungeon leveling efficiency. It records XP gains, run duration, XP per hour, and other useful statistics for every dungeon run.
 
 ---
 
@@ -13,7 +13,7 @@
 
 ### Dungeon Run Tracking
 
-Nova Dungeon XP automatically tracks:
+Simple Dungeon XP automatically tracks:
 
 - Dungeon name
 - Run start and end time
@@ -57,7 +57,7 @@ The addon includes:
 
 Open the window using:
 
-/ndxp
+/sdxp
 
 or click the minimap icon.
 
@@ -78,9 +78,9 @@ Supported:
 1. Download the addon.
 2. Extract the folder into:
 
-World of Warcraft/Interface/AddOns/NovaDungeonXP
+World of Warcraft/Interface/AddOns/SimpleDungeonXP
 
-3. Rename the folder from `NovaDungeonXP-main` to `NovaDungeonXP` if needed.
+3. Rename the folder from `SimpleDungeonXP-main` to `SimpleDungeonXP` if needed.
 4. Restart the game.
 5. Enable the addon in the character selection screen.
 
@@ -90,11 +90,11 @@ World of Warcraft/Interface/AddOns/NovaDungeonXP
 
 Open statistics window:
 
-/ndxp
+/sdxp
 
 Reset saved history:
 
-/ndxp reset
+/sdxp reset
 
 ---
 

@@ -7,7 +7,7 @@
 - Replaced non-existent `CHAT_MSG_COMBAT_XP_GAIN` event with `COMBAT_LOG_EVENT_UNFILTERED` + `UNIT_DIED` subtype. Mob kill counter now actually works on 3.3.5 clients.
 - Fixed `GetInstanceInfo()` returning an empty string right after the loading screen. Added retry logic via `OnUpdate` (up to 3 seconds) before falling back to "Unknown Dungeon".
 - Fixed XP tracking breaking on levelup: `PLAYER_XP_UPDATE` now correctly accounts for the XP earned to cross a level boundary using `UnitXPMax`.
-- Added persistent active run state (`NovaDungeonXPDB.activeRun`). Progress is no longer lost on `/reload` while inside a dungeon.
+- Added persistent active run state. Progress is no longer lost on `/reload` while inside a dungeon.
 
 ### Improvements
 - Duration is now stored as raw seconds (`duration` field) and displayed as `Xm Ys`. Old history entries using the float `time` field are still displayed correctly.
