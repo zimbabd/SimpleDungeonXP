@@ -2,7 +2,7 @@
 ## Title: Simple Dungeon XP
 ## Notes: Tracks dungeon XP, XP/hour and history
 ## Author: zimbabd
-## Version: 4.4
+## Version: 4.5
 ## SavedVariablesPerCharacter: SimpleDungeonXPDB, SimpleDungeonXPMinimapDB, SimpleDungeonXPTimerDB
 
 embeds.xml

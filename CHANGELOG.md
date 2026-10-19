@@ -1,5 +1,11 @@
 # Changelog
 
+## v4.5
+
+### Changes
+- Changed run history, minimap settings, and timer settings to be saved separately for each character.
+
+
 ## v4.4
 
 ### Changes

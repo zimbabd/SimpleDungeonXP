@@ -50,6 +50,7 @@ The addon stores your previous dungeon runs and displays them in a simple statis
 Features:
 
 - Keeps a history of up to 100 previous runs
+- Saves run history separately for each character
 - Shows your best XP/hour run highlighted in green
 - Easy comparison between different dungeons
 - Sortable columns: Dungeon name, Time, XP, XP/Hour
