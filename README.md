@@ -12,6 +12,7 @@
 ## Features
 
 ### Dungeon Run Tracking
+<img width="510" height="224" alt="2026-10-19_152855" src="https://github.com/user-attachments/assets/565ba9d1-293f-4b45-b3b1-34192deb9543" />
 
 Simple Dungeon XP automatically tracks:
 
