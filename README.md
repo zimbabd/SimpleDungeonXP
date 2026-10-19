@@ -36,9 +36,11 @@ The addon includes a separate timer window for tracking time spent in an instanc
 ---
 
 ## Screenshots
-<img width="1009" height="549" alt="image" src="https://github.com/user-attachments/assets/6b22cca6-57d7-427d-9ab1-c35638b1d0c3" />
+<img width="1009" height="549" alt="626001384-6b22cca6-57d7-427d-9ab1-c35638b1d0c3" src="https://github.com/user-attachments/assets/b6f9f062-c103-487f-bbdf-d593c15af078" />
 <img width="630" height="308" alt="2026-07-21_133606" src="https://github.com/user-attachments/assets/b951a1a0-c5db-49ab-8b6b-2a7b818c5992" />
-<img width="1920" height="1200" alt="image" src="https://github.com/user-attachments/assets/db6cd7e1-216d-4c0c-976c-d69506ba23cc" />
+<img width="1920" height="1200" alt="2026-10-19_132527" src="https://github.com/user-attachments/assets/e5859e41-aae4-4303-9745-a04c9231c9ba" />
+
+
 
 
 ### Run History
