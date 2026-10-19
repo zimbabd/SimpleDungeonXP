@@ -3,7 +3,7 @@
 ## Notes: Tracks dungeon XP, XP/hour and history
 ## Author: zimbabd
 ## Version: 4.4
-## SavedVariables: SimpleDungeonXPDB, SimpleDungeonXPMinimapDB, SimpleDungeonXPTimerDB
+## SavedVariablesPerCharacter: SimpleDungeonXPDB, SimpleDungeonXPMinimapDB, SimpleDungeonXPTimerDB
 
 embeds.xml
 SimpleDungeonXPTimer.lua
