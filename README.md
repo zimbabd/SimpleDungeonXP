@@ -32,8 +32,10 @@ The addon includes a separate timer window for tracking time spent in an instanc
 - The timer appears automatically in instances and stays visible during the 15-second return window, then hides when the timer resets.
 - A small countdown bar shows the remaining time before the paused timer resets.
 - Timer position and size are saved between sessions.
-- The timer can be locked to prevent moving or resizing it. Locking also hides its background and border.
-- Locking and unlocking are available from the minimap button's right-click menu.
+- The timer is locked by default. Unlock it to move or resize it; locking hides its background and border.
+- Use `Lock` and `Unlock` in the minimap button's right-click menu to control the timer.
+- Run history, timer position, size, and lock state are saved separately for each character.
+- The addon name and version are announced in chat at login.
 
 ---
 
