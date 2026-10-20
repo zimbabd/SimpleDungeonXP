@@ -633,7 +633,7 @@ local DBIcon = LibStub("LibDBIcon-1.0")
 
 local minimapMenu = CreateFrame("Frame", "SimpleDungeonXPMinimapMenu", UIParent)
 minimapMenu:SetWidth(140)
-minimapMenu:SetHeight(106)
+minimapMenu:SetHeight(58)
 minimapMenu:SetFrameStrata("TOOLTIP")
 minimapMenu:SetClampedToScreen(true)
 minimapMenu:SetBackdrop({
@@ -681,10 +681,8 @@ local function CreateTimerMenuButton(text, index, action)
     return button
 end
 
-CreateTimerMenuButton("Show", 1, SimpleDungeonXPTimer_Show)
-CreateTimerMenuButton("Hide", 2, SimpleDungeonXPTimer_Hide)
-CreateTimerMenuButton("Lock", 3, SimpleDungeonXPTimer_Lock)
-CreateTimerMenuButton("Unlock", 4, SimpleDungeonXPTimer_Unlock)
+CreateTimerMenuButton("Lock", 1, SimpleDungeonXPTimer_Lock)
+CreateTimerMenuButton("Unlock", 2, SimpleDungeonXPTimer_Unlock)
 
 local function ToggleMinimapMenu()
     if minimapMenu:IsShown() then

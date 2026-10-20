@@ -1,12 +1,14 @@
+local loadedAddonName = ...
+
 SimpleDungeonXPTimerDB = SimpleDungeonXPTimerDB or {}
 
 local timerFrame = CreateFrame("Frame", "SimpleDungeonXPTimerWindow", UIParent)
 local saved = SimpleDungeonXPTimerDB
-if saved.show == nil then
-    saved.show = true
-end
-if saved.locked == nil then
-    saved.locked = false
+if not saved.lockConfigured then
+    saved.locked = true
+    saved.lockConfigured = true
+elseif saved.locked == nil then
+    saved.locked = true
 end
 
 local MIN_WIDTH, MIN_HEIGHT = 150, 58
@@ -46,7 +48,7 @@ local function UpdateFuse()
         return
     end
 
-    if saved.pausedAt and saved.show then
+    if saved.pausedAt then
         local wallClockRemaining = RETURN_GRACE_PERIOD - (time() - saved.pausedAt)
         pauseTimeRemaining = math.max(0, math.min(pauseTimeRemaining, wallClockRemaining))
         fuseBar:SetValue(pauseTimeRemaining)
@@ -60,7 +62,7 @@ local function UpdateFuse()
 end
 
 local function UpdateVisibility()
-    if saved.show then
+    if active or saved.pausedAt then
         timerFrame:Show()
     else
         timerFrame:Hide()
@@ -79,7 +81,7 @@ local function UpdateLockState()
         timerFrame:SetBackdropColor(0.04, 0.06, 0.07, 0.92)
         timerFrame:SetBackdropBorderColor(1, 1, 1, 1)
     end
-    timerFrame.lockButton:SetNormalTexture(saved.locked and "Interface\\Buttons\\LockButton-Locked-Up" or "Interface\\Buttons\\LockButton-Unlocked-Up")
+    timerFrame.lockButton.icon:SetTexture(saved.locked and "Interface\\Buttons\\LockButton-Locked-Up" or "Interface\\Buttons\\LockButton-Unlocked-Up")
 end
 
 function SimpleDungeonXPTimer_SetLocked(locked)
@@ -88,25 +90,9 @@ function SimpleDungeonXPTimer_SetLocked(locked)
     end
 
     saved.locked = locked
+    saved.lockConfigured = true
     UpdateLockState()
     print("|cff00ff00Simple Dungeon XP:|r Dungeon Timer " .. (locked and "LOCKED" or "UNLOCKED"))
-end
-
-function SimpleDungeonXPTimer_SetShown(shown)
-    local changed = saved.show ~= shown
-    saved.show = shown
-    UpdateVisibility()
-    if changed then
-        print("|cff00ff00Simple Dungeon XP:|r Dungeon Timer " .. (shown and "ON" or "OFF"))
-    end
-end
-
-function SimpleDungeonXPTimer_Show()
-    SimpleDungeonXPTimer_SetShown(true)
-end
-
-function SimpleDungeonXPTimer_Hide()
-    SimpleDungeonXPTimer_SetShown(false)
 end
 
 function SimpleDungeonXPTimer_Lock()
@@ -151,6 +137,14 @@ local function SetInstanceState()
             timerFrame.timeText:SetText(FormatElapsed(saved.pausedElapsed))
         end
         active = false
+        if saved.pausedAt and currentTime - saved.pausedAt > RETURN_GRACE_PERIOD then
+            saved.startedAt = nil
+            saved.pausedAt = nil
+            saved.pausedElapsed = nil
+            saved.instanceKey = nil
+            pauseTimeRemaining = 0
+            timerFrame.timeText:SetText("00:00:00")
+        end
         UpdateVisibility()
     end
 end
@@ -219,23 +213,26 @@ timerFrame.resizeHandle:SetScript("OnMouseUp", function()
 end)
 
 timerFrame.lockButton = CreateFrame("Button", nil, timerFrame)
-timerFrame.lockButton:SetWidth(16)
-timerFrame.lockButton:SetHeight(16)
-timerFrame.lockButton:SetPoint("BOTTOMLEFT", 3, 3)
+timerFrame.lockButton:SetWidth(22)
+timerFrame.lockButton:SetHeight(22)
+timerFrame.lockButton:SetPoint("BOTTOMLEFT", 2, 1)
+timerFrame.lockButton:SetFrameLevel(timerFrame:GetFrameLevel() + 3)
+timerFrame.lockButton.icon = timerFrame.lockButton:CreateTexture(nil, "ARTWORK")
+timerFrame.lockButton.icon:SetAllPoints(timerFrame.lockButton)
 timerFrame.lockButton:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
 timerFrame.lockButton:SetScript("OnClick", function()
     SimpleDungeonXPTimer_SetLocked(not saved.locked)
 end)
 timerFrame.lockButton:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_TOP")
-    GameTooltip:SetText(saved.locked and "Unlock timer" or "Lock timer")
+    local lockTexture = saved.locked and "Interface\\Buttons\\LockButton-Locked-Up" or "Interface\\Buttons\\LockButton-Unlocked-Up"
+    GameTooltip:SetText("|T" .. lockTexture .. ":16:16|t")
+    GameTooltip:AddLine(saved.locked and "Unlock timer" or "Lock timer")
     GameTooltip:Show()
 end)
 timerFrame.lockButton:SetScript("OnLeave", function()
     GameTooltip:Hide()
 end)
-timerFrame.lockButton:SetNormalTexture(saved.locked and "Interface\\Buttons\\LockButton-Locked-Up" or "Interface\\Buttons\\LockButton-Unlocked-Up")
-
 timerFrame:SetScript("OnDragStart", function(self)
     if not saved.locked then
         self:StartMoving()
@@ -276,12 +273,22 @@ timerFrame:SetScript("OnUpdate", function(_, elapsed)
             pauseTimeRemaining = 0
             timerFrame.timeText:SetText("00:00:00")
             UpdateFuse()
+            UpdateVisibility()
         end
     end
 end)
 
 timerFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-timerFrame:SetScript("OnEvent", SetInstanceState)
+timerFrame:RegisterEvent("PLAYER_LOGIN")
+timerFrame:SetScript("OnEvent", function(self, event)
+    if event == "PLAYER_LOGIN" then
+        local version = GetAddOnMetadata(loadedAddonName, "Version") or "unknown"
+        print("|cff00ff00Simple Dungeon XP|r v" .. version .. " loaded.")
+        return
+    end
+
+    SetInstanceState()
+end)
 
 UpdateLockState()
 

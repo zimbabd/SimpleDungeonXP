@@ -4,13 +4,15 @@
 
 ### Changes
 - Changed run history, minimap settings, and timer settings to be saved separately for each character.
+- Timer now appears automatically inside instances and remains visible during the 15-second return window, then hides when its timer resets.
+- Removed manual `Show` and `Hide` commands; timer visibility now follows instance state. The minimap menu retains `Lock` and `Unlock`.
 
 
 ## v4.4
 
 ### Changes
 - Renamed the addon to Simple Dungeon XP and updated its branding.
-- Added separate `Show`, `Hide`, `Lock`, and `Unlock` commands to the minimap button's right-click menu.
+- Added timer visibility and lock controls to the minimap button's right-click menu.
 - Added a 15-second timer pause when leaving an instance. Returning to the same instance resumes the timer; otherwise, it resets.
 - Added a countdown bar showing the remaining pause time.
 - Added timer locking to prevent moving and resizing, with the background and border hidden while locked.

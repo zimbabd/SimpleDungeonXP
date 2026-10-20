@@ -29,10 +29,11 @@ The addon includes a separate timer window for tracking time spent in an instanc
 
 - The timer starts when entering an instance and pauses when leaving.
 - Returning to the same instance within 15 seconds resumes the timer; otherwise, it resets.
+- The timer appears automatically in instances and stays visible during the 15-second return window, then hides when the timer resets.
 - A small countdown bar shows the remaining time before the paused timer resets.
 - Timer position and size are saved between sessions.
 - The timer can be locked to prevent moving or resizing it. Locking also hides its background and border.
-- Timer visibility and locking can be controlled from the minimap button's right-click menu using `Show`, `Hide`, `Lock`, and `Unlock`.
+- Locking and unlocking are available from the minimap button's right-click menu.
 
 ---
 
@@ -69,7 +70,7 @@ The addon includes:
 - Scrollable history table
 - Minimap button
 - Slash command support
-- Right-click minimap menu for timer visibility and lock controls
+- Right-click minimap menu for timer lock controls
 
 Open the window using:
 
